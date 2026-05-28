@@ -384,13 +384,21 @@ impl HyprlandWorkspaces {
             return;
         };
 
+        let on_current_monitor = self
+            .config
+            .config()
+            .modules
+            .hyprland_workspaces
+            .focus_on_current_monitor
+            .get();
+
         let hyprland = hyprland.clone();
         tokio::spawn(async move {
             let Some(selector) = workspace_selector(&hyprland, id).await else {
                 warn!(workspace = id, "no resolvable selector, skipping dispatch");
                 return;
             };
-            dispatch_workspace_focus(&hyprland, &selector, id).await;
+            dispatch_workspace_focus(&hyprland, &selector, id, on_current_monitor).await;
         });
     }
 
@@ -564,17 +572,30 @@ fn lua_string_escape(value: &str) -> String {
 /// Tries the Lua dispatcher first (Hyprland 0.55+ Lua config), falling back
 /// to the legacy `workspace <selector>` form. Both paths share the same
 /// parser inside Hyprland.
-async fn dispatch_workspace_focus(hyprland: &HyprlandService, selector: &str, id: WorkspaceId) {
+///
+/// When `on_current_monitor` is set, the workspace is pulled onto the active
+/// monitor instead (`focusworkspaceoncurrentmonitor`).
+async fn dispatch_workspace_focus(
+    hyprland: &HyprlandService,
+    selector: &str,
+    id: WorkspaceId,
+    on_current_monitor: bool,
+) {
     let lua_arg = if selector.starts_with("name:") {
         format!("\"{}\"", lua_string_escape(selector))
     } else {
         selector.to_owned()
     };
-    let lua_cmd = format!("hl.dsp.focus({{workspace = {lua_arg}}})");
+    let lua_cmd =
+        format!("hl.dsp.focus({{workspace = {lua_arg}, on_current_monitor = {on_current_monitor}}})");
 
     match hyprland.dispatch(&lua_cmd).await {
         Ok(resp) if resp.starts_with("error:") || resp.contains("Invalid dispatcher") => {
-            let legacy_cmd = format!("workspace {selector}");
+            let legacy_cmd = if on_current_monitor {
+                format!("focusworkspaceoncurrentmonitor {selector}")
+            } else {
+                format!("workspace {selector}")
+            };
             if let Err(err) = hyprland.dispatch(&legacy_cmd).await {
                 error!(error = %err, workspace = id, "cannot switch workspace");
             }

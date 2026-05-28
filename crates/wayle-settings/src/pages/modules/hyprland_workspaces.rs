@@ -32,6 +32,7 @@ pub(crate) fn entry(config: &Config) -> LeafEntry {
                     items: vec![
                         number_u8(&module.min_workspace_count),
                         toggle(&module.monitor_specific),
+                        toggle(&module.focus_on_current_monitor),
                         toggle(&module.show_special),
                         toggle(&module.highlight_active_on_other_monitor),
                     ],
