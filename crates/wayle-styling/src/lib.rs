@@ -26,6 +26,9 @@ use wayle_config::{
 /// Static CSS compiled at build time.
 pub const STATIC_CSS: &str = include_str!(concat!(env!("OUT_DIR"), "/style.css"));
 
+/// Priority for per-component dynamic CSS providers.
+pub const COMPONENT_CSS_PRIORITY: u32 = 1000;
+
 /// Returns the SCSS source directory path.
 ///
 /// Only useful during development for hot-reload watching.
