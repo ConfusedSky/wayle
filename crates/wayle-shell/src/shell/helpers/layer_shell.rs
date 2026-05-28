@@ -4,6 +4,8 @@ use gtk4_layer_shell::{Edge, Layer, LayerShell};
 use relm4::gtk;
 use tracing::warn;
 use wayle_config::{ConfigService, schemas::general::Layer as ConfigLayer};
+use wayle_hyprland::HyprlandService;
+use wayle_niri::NiriService;
 
 use super::monitors::current_monitors;
 
@@ -87,4 +89,56 @@ pub(crate) fn apply_primary_monitor(root: &gtk::Window) {
     let primary = monitors.into_iter().next().map(|(_, monitor)| monitor);
 
     root.set_monitor(primary.as_ref());
+}
+
+/// Pins the surface to the monitor that currently has compositor focus.
+///
+/// Falls back to the primary monitor when the focused monitor can't be
+/// resolved — e.g. no supported compositor is running, or the focused
+/// connector doesn't match any GDK monitor.
+pub(crate) fn apply_focused_monitor(
+    root: &gtk::Window,
+    hyprland: Option<&Arc<HyprlandService>>,
+    niri: Option<&Arc<NiriService>>,
+) {
+    match focused_connector(hyprland, niri) {
+        Some(connector) => apply_monitor_by_connector(root, &connector),
+        None => {
+            warn!("no focused monitor resolvable, falling back to primary");
+            apply_primary_monitor(root);
+        }
+    }
+}
+
+/// Resolves the connector name of the focused monitor from whichever
+/// compositor service is available.
+///
+/// Hyprland reports `focused` per monitor directly; niri's focused output is
+/// the one hosting the focused workspace.
+fn focused_connector(
+    hyprland: Option<&Arc<HyprlandService>>,
+    niri: Option<&Arc<NiriService>>,
+) -> Option<String> {
+    if let Some(hyprland) = hyprland {
+        let focused = hyprland
+            .monitors
+            .get()
+            .into_iter()
+            .find(|monitor| monitor.focused.get())
+            .map(|monitor| monitor.name.get());
+        if focused.is_some() {
+            return focused;
+        }
+    }
+
+    if let Some(niri) = niri {
+        return niri
+            .workspaces
+            .get()
+            .values()
+            .find(|workspace| workspace.is_focused.get())
+            .and_then(|workspace| workspace.output.get());
+    }
+
+    None
 }

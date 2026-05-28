@@ -6,11 +6,15 @@ use wayle_audio::{
 };
 use wayle_brightness::{BacklightDevice, BrightnessService};
 use wayle_config::ConfigService;
+use wayle_hyprland::HyprlandService;
+use wayle_niri::NiriService;
 
 pub(crate) struct OsdInit {
     pub(crate) config: Arc<ConfigService>,
     pub(crate) audio: Option<Arc<AudioService>>,
     pub(crate) brightness: Option<Arc<BrightnessService>>,
+    pub(crate) hyprland: Option<Arc<HyprlandService>>,
+    pub(crate) niri: Option<Arc<NiriService>>,
 }
 
 #[derive(Debug, Clone)]

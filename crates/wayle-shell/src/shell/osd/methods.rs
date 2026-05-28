@@ -14,8 +14,8 @@ use super::{
 use crate::{
     i18n::t,
     shell::helpers::layer_shell::{
-        apply_layer as apply_window_layer, apply_monitor_by_connector, apply_primary_monitor,
-        reset_anchors,
+        apply_focused_monitor, apply_layer as apply_window_layer, apply_monitor_by_connector,
+        apply_primary_monitor, reset_anchors,
     },
 };
 
@@ -33,6 +33,9 @@ impl Osd {
         self.current_event = Some(event);
         self.dismiss_id = self.dismiss_id.wrapping_add(1);
 
+        // Re-resolve the target monitor so `monitor = "focused"` tracks the
+        // currently focused output each time the OSD appears.
+        self.apply_position(root);
         root.set_visible(true);
 
         let duration = self.config.config().osd.duration.get();
@@ -272,6 +275,9 @@ impl Osd {
 
         match &monitor {
             OsdMonitor::Primary => apply_primary_monitor(root),
+            OsdMonitor::Focused => {
+                apply_focused_monitor(root, self.hyprland.as_ref(), self.niri.as_ref());
+            }
             OsdMonitor::Connector(name) => {
                 apply_monitor_by_connector(root, name);
             }

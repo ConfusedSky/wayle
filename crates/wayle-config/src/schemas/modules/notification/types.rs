@@ -47,12 +47,19 @@ pub enum PopupCloseBehavior {
 
 /// Target monitor for notification popups.
 ///
-/// Accepts `"primary"` or a connector name like `"DP-1"`.
+/// Accepts `"primary"`, `"focused"`, or a connector name like `"DP-1"`.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum PopupMonitor {
     /// Use the first available monitor (primary).
     #[default]
     Primary,
+    /// Use the monitor that currently has compositor focus.
+    ///
+    /// Resolved when a popup is shown. Falls back to the primary monitor when
+    /// the focused monitor can't be determined (e.g. no supported compositor
+    /// running). A popup already on screen stays on its monitor; it does not
+    /// migrate if focus later moves.
+    Focused,
     /// Use a specific monitor identified by connector name.
     Connector(String),
 }
@@ -61,6 +68,7 @@ impl Serialize for PopupMonitor {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match self {
             Self::Primary => serializer.serialize_str("primary"),
+            Self::Focused => serializer.serialize_str("focused"),
             Self::Connector(name) => serializer.serialize_str(name),
         }
     }
@@ -83,7 +91,7 @@ impl schemars::JsonSchema for PopupMonitor {
     fn json_schema(_generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         schemars::json_schema!({
             "type": "string",
-            "description": "\"primary\" or a monitor connector name (e.g. \"DP-1\")",
+            "description": "\"primary\", \"focused\", or a monitor connector name (e.g. \"DP-1\")",
             "default": "primary"
         })
     }
@@ -95,12 +103,14 @@ impl de::Visitor<'_> for PopupMonitorVisitor {
     type Value = PopupMonitor;
 
     fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(r#""primary" or a connector name like "DP-1""#)
+        f.write_str(r#""primary", "focused", or a connector name like "DP-1""#)
     }
 
     fn visit_str<E: de::Error>(self, value: &str) -> Result<PopupMonitor, E> {
         if value.eq_ignore_ascii_case("primary") {
             Ok(PopupMonitor::Primary)
+        } else if value.eq_ignore_ascii_case("focused") {
+            Ok(PopupMonitor::Focused)
         } else {
             Ok(PopupMonitor::Connector(value.to_owned()))
         }

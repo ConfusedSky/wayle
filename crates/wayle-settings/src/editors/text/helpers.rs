@@ -39,6 +39,7 @@ macro_rules! impl_monitor_text_like {
             fn to_entry_text(&self) -> String {
                 match self {
                     Self::Primary => String::from("primary"),
+                    Self::Focused => String::from("focused"),
                     Self::Connector(name) => name.clone(),
                 }
             }
@@ -46,6 +47,9 @@ macro_rules! impl_monitor_text_like {
             fn from_entry_text(text: &str) -> Self {
                 if text.eq_ignore_ascii_case("primary") || text.is_empty() {
                     return Self::Primary;
+                }
+                if text.eq_ignore_ascii_case("focused") {
+                    return Self::Focused;
                 }
                 Self::Connector(text.to_owned())
             }

@@ -10,7 +10,7 @@ settings-osd-duration = Durée
     .description = Durée de visibilité de l'OSD avant fermeture automatique (ms)
 
 settings-osd-monitor = Moniteur
-    .description = Moniteur affichant l'OSD : « primary » ou un connecteur comme « DP-1 »
+    .description = Moniteur affichant l'OSD : « primary », « focused » ou un connecteur comme « DP-1 »
 
 settings-osd-margin = Marge
     .description = Distance entre le bord de l'écran et l'OSD

@@ -11,6 +11,8 @@ use gtk::prelude::*;
 use gtk4_layer_shell::{KeyboardMode, LayerShell};
 use relm4::{gtk, prelude::*};
 use wayle_config::ConfigService;
+use wayle_hyprland::HyprlandService;
+use wayle_niri::NiriService;
 use wayle_notification::{NotificationService, core::notification::Notification};
 
 pub(crate) use self::messages::PopupHostInit;
@@ -19,6 +21,8 @@ use self::{card::NotificationPopupCard, messages::PopupHostCmd};
 pub(crate) struct NotificationPopupHost {
     notification: Arc<NotificationService>,
     config: Arc<ConfigService>,
+    hyprland: Option<Arc<HyprlandService>>,
+    niri: Option<Arc<NiriService>>,
     cards: Vec<(Arc<Notification>, Controller<NotificationPopupCard>)>,
     card_container: gtk::Box,
 }
@@ -66,6 +70,8 @@ impl Component for NotificationPopupHost {
         let model = Self {
             notification: init.notification.clone(),
             config: init.config.clone(),
+            hyprland: init.hyprland.clone(),
+            niri: init.niri.clone(),
             cards: Vec::new(),
             card_container: gtk::Box::default(),
         };

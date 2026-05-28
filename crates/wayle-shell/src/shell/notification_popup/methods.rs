@@ -12,8 +12,8 @@ use super::{
     card::{CardInit, NotificationPopupCard},
 };
 use crate::shell::helpers::layer_shell::{
-    apply_layer as apply_window_layer, apply_monitor_by_connector, apply_primary_monitor,
-    reset_anchors,
+    apply_focused_monitor, apply_layer as apply_window_layer, apply_monitor_by_connector,
+    apply_primary_monitor, reset_anchors,
 };
 
 impl NotificationPopupHost {
@@ -38,7 +38,16 @@ impl NotificationPopupHost {
 
         debug!(cards = self.cards.len(), "popup reconcile complete");
 
-        root.set_visible(!visible_popups.is_empty());
+        let will_be_visible = !visible_popups.is_empty();
+
+        // Re-resolve the target monitor only as the stack appears, so
+        // `monitor = "focused"` follows the focused output for a fresh batch
+        // of popups without migrating one that's already on screen.
+        if will_be_visible && !root.is_visible() {
+            self.apply_position(root);
+        }
+
+        root.set_visible(will_be_visible);
     }
 
     fn remove_stale_cards(&mut self, active_popups: &[Arc<Notification>]) {
@@ -161,6 +170,9 @@ impl NotificationPopupHost {
         match &monitor {
             PopupMonitor::Primary => {
                 apply_primary_monitor(root);
+            }
+            PopupMonitor::Focused => {
+                apply_focused_monitor(root, self.hyprland.as_ref(), self.niri.as_ref());
             }
             PopupMonitor::Connector(name) => {
                 apply_monitor_by_connector(root, name);

@@ -28,12 +28,18 @@ pub enum OsdPosition {
 
 /// Target monitor for the OSD overlay.
 ///
-/// Accepts `"primary"` or a connector name like `"DP-1"`.
+/// Accepts `"primary"`, `"focused"`, or a connector name like `"DP-1"`.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub enum OsdMonitor {
     /// Use the first available monitor.
     #[default]
     Primary,
+    /// Use the monitor that currently has compositor focus.
+    ///
+    /// Resolved at display time. Falls back to the primary monitor when the
+    /// focused monitor can't be determined (e.g. no supported compositor
+    /// running).
+    Focused,
     /// Use a specific monitor identified by connector name.
     Connector(String),
 }
@@ -42,6 +48,7 @@ impl Serialize for OsdMonitor {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         match self {
             Self::Primary => serializer.serialize_str("primary"),
+            Self::Focused => serializer.serialize_str("focused"),
             Self::Connector(name) => serializer.serialize_str(name),
         }
     }
@@ -64,7 +71,7 @@ impl JsonSchema for OsdMonitor {
     fn json_schema(_generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
         schemars::json_schema!({
             "type": "string",
-            "description": "\"primary\" or a monitor connector name (e.g. \"DP-1\")",
+            "description": "\"primary\", \"focused\", or a monitor connector name (e.g. \"DP-1\")",
             "default": "primary"
         })
     }
@@ -76,12 +83,14 @@ impl de::Visitor<'_> for OsdMonitorVisitor {
     type Value = OsdMonitor;
 
     fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(r#""primary" or a connector name like "DP-1""#)
+        f.write_str(r#""primary", "focused", or a connector name like "DP-1""#)
     }
 
     fn visit_str<E: de::Error>(self, value: &str) -> Result<OsdMonitor, E> {
         if value.eq_ignore_ascii_case("primary") {
             Ok(OsdMonitor::Primary)
+        } else if value.eq_ignore_ascii_case("focused") {
+            Ok(OsdMonitor::Focused)
         } else {
             Ok(OsdMonitor::Connector(value.to_owned()))
         }

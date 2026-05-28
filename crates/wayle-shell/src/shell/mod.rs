@@ -99,6 +99,8 @@ impl Component for Shell {
                 .launch(PopupHostInit {
                     notification: notification.clone(),
                     config: init.services.config.clone(),
+                    hyprland: init.services.hyprland.clone(),
+                    niri: init.services.niri.clone(),
                 })
                 .detach()
         });
@@ -201,6 +203,8 @@ fn create_osd(services: &ShellServices) -> Option<Controller<Osd>> {
                 config: services.config.clone(),
                 audio: services.audio.clone(),
                 brightness: services.brightness.clone(),
+                hyprland: services.hyprland.clone(),
+                niri: services.niri.clone(),
             })
             .detach(),
     )

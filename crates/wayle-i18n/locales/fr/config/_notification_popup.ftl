@@ -29,7 +29,7 @@ settings-modules-notifications-popup-gap = Écart entre fenêtres contextuelles
     .description = Espacement entre les fenêtres contextuelles de notification empilées
 
 settings-modules-notifications-popup-monitor = Moniteur des fenêtres contextuelles
-    .description = Moniteur affichant les fenêtres contextuelles : « primary » ou un connecteur comme « DP-1 »
+    .description = Moniteur affichant les fenêtres contextuelles : « primary », « focused » ou un connecteur comme « DP-1 »
 
 settings-modules-notifications-popup-duration = Fermeture automatique
     .description = Durée de visibilité des fenêtres contextuelles avant fermeture (ms)
