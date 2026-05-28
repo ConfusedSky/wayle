@@ -8,6 +8,9 @@ settings-modules-hyprland-workspaces-min-workspace-count = Espaces de travail mi
 settings-modules-hyprland-workspaces-monitor-specific = Spécifique au moniteur
     .description = Afficher uniquement les espaces de travail de ce moniteur
 
+settings-modules-hyprland-workspaces-focus-on-current-monitor = Focus on Current Monitor
+    .description = Pull the clicked workspace onto this monitor instead of switching to its assigned monitor
+
 settings-modules-hyprland-workspaces-show-special = Afficher les spéciaux
     .description = Inclure les espaces de travail éphémères
 

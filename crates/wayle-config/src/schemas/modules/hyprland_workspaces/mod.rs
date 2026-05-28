@@ -195,6 +195,15 @@ pub struct HyprlandWorkspacesConfig {
     #[default(true)]
     pub monitor_specific: ConfigProperty<bool>,
 
+    /// Focus the clicked workspace on the current monitor.
+    ///
+    /// When true, clicking (or scrolling to) a workspace pulls it onto the
+    /// bar's monitor (Hyprland's `focusworkspaceoncurrentmonitor`) instead of
+    /// switching to it on its assigned monitor.
+    #[serde(rename = "focus-on-current-monitor")]
+    #[default(false)]
+    pub focus_on_current_monitor: ConfigProperty<bool>,
+
     /// Include special workspaces (scratchpads) in the display.
     ///
     /// Special workspaces have negative IDs in Hyprland.

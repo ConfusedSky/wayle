@@ -8,6 +8,9 @@ settings-modules-hyprland-workspaces-min-workspace-count = Minimum Workspaces
 settings-modules-hyprland-workspaces-monitor-specific = Monitor Specific
     .description = Show only workspaces on this monitor
 
+settings-modules-hyprland-workspaces-focus-on-current-monitor = Focus on Current Monitor
+    .description = Pull the clicked workspace onto this monitor instead of switching to its assigned monitor
+
 settings-modules-hyprland-workspaces-show-special = Show Special
     .description = Include scratchpad workspaces
 
