@@ -1,4 +1,5 @@
 mod bootstrap;
+pub(crate) mod focus;
 pub(crate) mod layer_shell;
 pub(crate) mod monitors;
 

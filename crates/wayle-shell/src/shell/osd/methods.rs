@@ -276,7 +276,7 @@ impl Osd {
         match &monitor {
             OsdMonitor::Primary => apply_primary_monitor(root),
             OsdMonitor::Focused => {
-                apply_focused_monitor(root, self.hyprland.as_ref(), self.niri.as_ref());
+                apply_focused_monitor(root, self.focus.as_deref());
             }
             OsdMonitor::Connector(name) => {
                 apply_monitor_by_connector(root, name);

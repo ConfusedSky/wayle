@@ -12,9 +12,9 @@ use tracing::debug;
 use wayle_audio::AudioService;
 use wayle_brightness::BrightnessService;
 use wayle_config::ConfigService;
-use wayle_hyprland::HyprlandService;
-use wayle_niri::NiriService;
 use wayle_widgets::WatcherToken;
+
+use crate::shell::helpers::focus::{self, FocusedMonitor};
 
 pub(crate) use self::messages::OsdInit;
 use self::{
@@ -31,8 +31,7 @@ pub(crate) struct Osd {
     config: Arc<ConfigService>,
     audio: Option<Arc<AudioService>>,
     brightness: Option<Arc<BrightnessService>>,
-    hyprland: Option<Arc<HyprlandService>>,
-    niri: Option<Arc<NiriService>>,
+    focus: Option<Arc<dyn FocusedMonitor>>,
     dismiss_id: u32,
     ready: bool,
     device_watcher: WatcherToken,
@@ -159,8 +158,7 @@ impl Component for Osd {
             config: init.config.clone(),
             audio: init.audio.clone(),
             brightness: init.brightness.clone(),
-            hyprland: init.hyprland.clone(),
-            niri: init.niri.clone(),
+            focus: focus::from_services(init.hyprland.clone(), init.niri.clone()),
             dismiss_id: 0,
             ready: false,
             device_watcher: WatcherToken::new(),
