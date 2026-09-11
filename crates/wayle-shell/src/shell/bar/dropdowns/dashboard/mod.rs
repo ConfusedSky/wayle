@@ -108,28 +108,38 @@ impl Component for DashboardDropdown {
                     },
                 },
 
-                #[template]
-                #[name = "content"]
-                DropdownContent {
+                // Scrollable so the popover's *minimum* height stays small.
+                // GTK dismisses a popover whose compositor-configured size is
+                // below its minimum (gtk_popover_native_layout ->
+                // is_acceptable_size), which happened whenever the dashboard
+                // was taller than the monitor's logical height (e.g. 816px of
+                // content on a 1080p panel at 1.5x scale = 720px).
+                gtk::ScrolledWindow {
                     set_vexpand: true,
+                    set_hscrollbar_policy: gtk::PolicyType::Never,
+                    set_propagate_natural_height: true,
 
-                    #[local_ref]
-                    quick_actions_widget -> gtk::Box {},
+                    #[template]
+                    #[name = "content"]
+                    DropdownContent {
+                        #[local_ref]
+                        quick_actions_widget -> gtk::Box {},
 
-                    #[local_ref]
-                    controls_widget -> gtk::Box {},
+                        #[local_ref]
+                        controls_widget -> gtk::Box {},
 
-                    #[local_ref]
-                    media_widget -> gtk::Box {},
+                        #[local_ref]
+                        media_widget -> gtk::Box {},
 
-                    #[local_ref]
-                    info_row_widget -> gtk::Box {},
+                        #[local_ref]
+                        info_row_widget -> gtk::Box {},
 
-                    #[local_ref]
-                    system_stats_widget -> gtk::Box {},
+                        #[local_ref]
+                        system_stats_widget -> gtk::Box {},
 
-                    #[local_ref]
-                    user_session_widget -> gtk::Box {},
+                        #[local_ref]
+                        user_session_widget -> gtk::Box {},
+                    },
                 },
             },
         }
