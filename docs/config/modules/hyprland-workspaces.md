@@ -54,8 +54,9 @@ right = ["hyprland-workspaces"]
 ::: details More about `min-workspace-count`
 
 When set to 0 (default), only active and occupied workspaces are shown.
-When set to N, at least N buttons are always visible, with empty ones
-using `empty-color` styling.
+When set to N, numbered workspaces 1 to N are always visible, with empty
+ones using `empty-color` styling. Named workspaces are shown only while
+they exist; a Hyprland `persistent` workspace rule keeps one alive.
 
 :::
 
@@ -66,12 +67,6 @@ When false, all workspaces from all monitors are shown.
 
 :::
 
-::: details More about `show-special`
-
-Special workspaces have negative IDs in Hyprland.
-
-:::
-
 ::: details More about `highlight-active-on-other-monitor`
 
 This option only has an effect when `monitor-specific` is false.
@@ -79,6 +74,7 @@ This option only has an effect when `monitor-specific` is false.
 - When true, the workspace active on the current monitor is indicated with `active-color`, but all workspaces active on different monitors are indicated with `active-on-other-monitor-color`.
 There will be no visual indication for the global active workspace.
 
+:::
 
 ::: details More about `urgent-show`
 
@@ -97,13 +93,17 @@ button pulses until you switch to it.
 
 ::: details More about `display-mode`
 
-- `label`: Shows workspace number (or name if `label-use-name` is true)
+- `label`: Shows workspace number (or name if `label-use-name` is true).
+  Named and special workspaces always show their name.
 - `icon`: Shows icon from `workspace-map` (falls back to label if unmapped)
 - `none`: Shows nothing - only app icons visible
 
 :::
 
 ::: details More about `label-use-name`
+
+Affects numbered workspaces only; named and special workspaces always
+show their name.
 
 Only applies when `display-mode = "label"` or as fallback for unmapped
 workspaces in `display-mode = "icon"`.
@@ -112,7 +112,7 @@ workspaces in `display-mode = "icon"`.
 
 ::: details More about `numbering`
 
-- `absolute`: Show actual Hyprland workspace IDs (1, 2, 3, 4, 5, 6...)
+- `absolute`: Show actual Hyprland workspace numbers (1, 2, 3, 4, 5, 6...)
 - `relative`: Show numbers relative to monitor's starting workspace.
   If a monitor has workspaces 4, 5, 6 assigned, they display as 1, 2, 3.
   Useful when keybinds use per-monitor numbering.
@@ -176,9 +176,12 @@ Range: 0.25-3.0.
 
 ::: details More about `workspace-ignore`
 
-Glob patterns matching workspace IDs. Examples:
+Glob patterns matching a workspace's name or number. Special workspaces
+include their `special:` prefix. Examples:
 - `"10"` - hide workspace 10
 - `"1?"` - hide workspaces 10-19
+- `"chat"` - hide the workspace named chat
+- `"special:*"` - hide all special workspaces
 
 :::
 
@@ -211,7 +214,9 @@ Applied to the empty placeholder icon and labels.
 
 ::: details More about `workspace-map`
 
-Keys are workspace IDs (use negative for special workspaces).
+Keys are workspace names or numbers. A workspace is matched by its name
+first, then by its number. Special workspaces include their `special:`
+prefix.
 
 #### Example
 
@@ -219,6 +224,8 @@ Keys are workspace IDs (use negative for special workspaces).
 [modules.hyprland-workspaces.workspace-map]
 1 = { icon = "ld-globe-symbolic", color = "#4a90d9" }
 2 = { icon = "ld-terminal-symbolic" }
+chat = { icon = "ld-message-circle-symbolic" }
+"special:magic" = { icon = "ld-layers-symbolic" }
 ```
 
 :::
